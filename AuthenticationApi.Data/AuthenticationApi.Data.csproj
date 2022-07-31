@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Migrations\Create_AlfaLifeBlog_Database.sql" />
+    <None Remove="Migrations\Insert_Data_AlfaLifeBlog_Database.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Migrations\Insert_Data_AlfaLifeBlog_Database.sql" />
+    <Compile Include="Migrations\Create_AlfaLifeBlog_Database.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AuthenticationApi.Common.Contracts\AuthenticationApi.Common.Contracts.csproj" />
+    <ProjectReference Include="..\AuthenticationApi.Model\AuthenticationApi.Model.csproj" />
+  </ItemGroup>
+
+</Project>
