@@ -180,14 +180,14 @@ ALTER TABLE [dbo].[Claims]
 ADD CONSTRAINT FK_UserClaimsUserId
 FOREIGN KEY (UserId) REFERENCES [Users](Id)
 
-CREATE TABLE Logins
+  CREATE TABLE Logins
 (
 	[Id] BigInt IDENTITY(1,1) PRIMARY KEY,
 	[CreateDate] DateTime NOT NULL DEFAULT(GETDATE()),
 	[ChangeDate] DateTime NOT NULL DEFAULT(GETDATE()),
 	[ChangeBy] NVarChar(100) NOT NULL DEFAULT(SUSER_NAME()),
 	[UserId] BigInt NOT NULL,
-	[AccessToken] NVarChar(255) NULL,
+	[AccessToken] NVarChar(MAX) NULL,
 	[RefreshToken] NVarChar(255) NULL,
 	[AccessTokenExpiryTime] DateTime NULL,
 	[RefreshTokenExpiryTime] DateTime NULL,

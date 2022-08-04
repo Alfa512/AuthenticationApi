@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AuthenticationApi.Controllers
 {
     [ApiController]
-    [Route("auth")]
+    [Route("/api/[controller]")]
     public class AuthenticationController : ControllerBase
     {
 
@@ -19,7 +19,8 @@ namespace AuthenticationApi.Controllers
             _userService = userService;
         }
 
-        [HttpPost(Name = "sign-in")]
+        [HttpPost]
+        [Route("/sign-in")]
         public async Task<ActionResult<AuthenticateTokenResponse>> SignIn(AuthenticateTokenRequest request)
         {
             var response = await _userService.AuthenticateWithToken(request);
@@ -32,7 +33,9 @@ namespace AuthenticationApi.Controllers
             return Created(request.ProviderUrl, response);
         }
 
-        [HttpPost(Name = "sign-up")]
+        //[HttpPost(Name = "/sign-up")]
+        [HttpPost]
+        [Route("/sign-up")]
         public async Task<ActionResult<AuthenticateTokenResponse>> SignUp(SignUpFirstStepRequest request)
         {
             var response = await _userService.CreateUser(request);

@@ -25,7 +25,9 @@ namespace AuthenticationApi.Data
 
         public T Create(T entity)
         {
-            return Context.Set<T>().Add(entity).Entity;
+            var nEntity = Context.Set<T>().Add(entity).Entity;
+            Context.SaveChanges();
+            return nEntity;
         }
 
         public T Update(T entity)

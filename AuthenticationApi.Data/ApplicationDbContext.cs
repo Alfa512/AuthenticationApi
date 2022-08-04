@@ -48,12 +48,12 @@ namespace AuthenticationApi.Data
         //IRoleRepository IDataContext.Roles => new RoleRepository(this); TODO: Add Repo for Roles
         IConfigurationRepository IDataContext.Configuration => new ConfigurationRepository(this);
 
-        public virtual DbSet<IdentityRole<long>> Roles { get; set; }
-        public virtual DbSet<IdentityUserClaim<long>> Claims { get; set; }
+        //public virtual DbSet<IdentityRole<long>> Roles { get; set; }
+        //public virtual DbSet<IdentityUserClaim<long>> Claims { get; set; }
         //public virtual DbSet<Login> Logins { get; set; }
         //public virtual DbSet<LoginProvider> LoginProviders { get; set; }
         public virtual DbSet<IdentityUserToken<long>> Tokens { get; set; }
-        public virtual DbSet<IdentityUserRole<long>> UserRoles { get; set; }
+        //public virtual DbSet<IdentityUserRole<long>> UserRoles { get; set; }
 
         //IConfigurationRepository IDataContext.Configuration => new ConfigurationRepository(this);
         //IUserRepository IDataContext.Users => new UserRepository(this);
@@ -89,11 +89,11 @@ namespace AuthenticationApi.Data
             builder.Entity<User>(b =>
             {
                 // Each User can have many UserClaims
-                b.HasMany(e => e.Claims)
-                    .WithOne()
-                    .HasForeignKey(uc => uc.UserId)
-                    .HasPrincipalKey(u => u.Id)
-                    .IsRequired();
+                //b.HasMany(e => e.Claims)
+                //    .WithOne()
+                //    .HasForeignKey(uc => uc.UserId)
+                //    .HasPrincipalKey(u => u.Id)
+                //    .IsRequired();
 
                 // Each User can have many UserLogins
                 b.HasMany(e => e.Logins)
@@ -123,24 +123,24 @@ namespace AuthenticationApi.Data
                     .IsRequired();
             });
 
-            builder.Entity<IdentityRole<long>>(b =>
-            {
-                b.HasKey(r => r.Id);
-                //b.HasIndex(r => r.NormalizedName).HasDatabaseName("RoleNameIndex").IsUnique();
-                b.ToTable("Roles");
-                b.Property(r => r.ConcurrencyStamp).IsConcurrencyToken();
+            //builder.Entity<IdentityRole<long>>(b =>
+            //{
+            //    b.HasKey(r => r.Id);
+            //    //b.HasIndex(r => r.NormalizedName).HasDatabaseName("RoleNameIndex").IsUnique();
+            //    b.ToTable("Roles");
+            //    b.Property(r => r.ConcurrencyStamp).IsConcurrencyToken();
 
-                b.Property(u => u.Name).HasMaxLength(256);
-                b.Property(u => u.NormalizedName).HasMaxLength(256);
+            //    b.Property(u => u.Name).HasMaxLength(256);
+            //    b.Property(u => u.NormalizedName).HasMaxLength(256);
 
-                b.HasMany<IdentityUserRole<long>>().WithOne().HasForeignKey(ur => ur.RoleId).HasPrincipalKey(p => p.Id).IsRequired();
-            });
+            //    b.HasMany<IdentityUserRole<long>>().WithOne().HasForeignKey(ur => ur.RoleId).HasPrincipalKey(p => p.Id).IsRequired();
+            //});
 
-            builder.Entity<IdentityUserClaim<long>>(b =>
-            {
-                b.HasKey(rc => rc.Id);
-                b.ToTable("Claims");
-            });
+            //builder.Entity<IdentityUserClaim<long>>(b =>
+            //{
+            //    b.HasKey(rc => rc.Id);
+            //    b.ToTable("Claims");
+            //});
 
             //builder.Entity<IdentityUserRole<long>>(b =>
             //{

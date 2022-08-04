@@ -28,6 +28,7 @@ namespace AuthenticationApi.Model.Data
             TwoFactorEnabled = false;
             LockoutEnabled = false;
             AccessFailedCount = 0;
+            RegistrationComplete = false;
         }
         //public long Id { get; set; }
         public Guid UserIdentifier { get; set; }
@@ -46,7 +47,7 @@ namespace AuthenticationApi.Model.Data
         //public string PhoneNumber { get; set; }
 
         //public virtual ICollection<IdentityRole<long>> Roles { get; set; } TODO: Add Role Entity
-        public virtual ICollection<IdentityUserClaim<long>> Claims { get; set; }
+        //public virtual ICollection<IdentityUserClaim<long>> Claims { get; set; }
         public virtual ICollection<Login> Logins { get; set; }
         public virtual ICollection<IdentityUserToken<long>> Tokens { get; set; }
         public virtual ICollection<UserRole> UserRoles { get; set; }

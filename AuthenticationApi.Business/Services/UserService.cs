@@ -37,7 +37,7 @@ namespace AuthenticationApi.Business.Services
 
         //private readonly IUserRepository _userRepository;
 
-        public UserService(IDataContext context, ICryptoService crypto, IConfigurationService config, ITemplateService templateService, IMailService mailService, IConfigurationService configurationService, 
+        public UserService(IDataContext context, ICryptoService crypto, IConfigurationService config, ITemplateService templateService, IMailService mailService, IConfigurationService configurationService,
             IDatabaseConfigurationService dbConfigurationService, UserManager<User> userManager)
         {
             _context = context;
@@ -53,33 +53,39 @@ namespace AuthenticationApi.Business.Services
         public async Task<AuthenticateTokenResponse> AuthenticateWithToken(AuthenticateTokenRequest request)
         {
             var passwordSecret = await _dbConfigurationService.GetPasswordSecret();
-            var passwordHash = _crypto.EncryptStringAes(request.Password + AuthOptions.PasswordSalt, passwordSecret);
+            //var passwordHash = _crypto.EncryptStringAes(request.Password + AuthOptions.PasswordSalt, passwordSecret);
 
             var response = new AuthenticateTokenResponse();
 
             User user = null;
             if (!request.Username.IsNullOrEmpty())
             {
-                user = _context.Users.GetAll().SingleOrDefault(u => u.NormalizedUserName == request.Username.ToLower() && u.PasswordHash == passwordHash);
+                user = _context.Users.GetAll().FirstOrDefault(u => u.NormalizedUserName == request.Username.ToLower());
             }
-            else if(!request.Email.IsNullOrEmpty())
+            else if (!request.Email.IsNullOrEmpty())
             {
-                user = _context.Users.GetAll().SingleOrDefault(u => u.NormalizedEmail == request.Email.ToLower() && u.PasswordHash == passwordHash);
+                user = _context.Users.GetAll().FirstOrDefault(u => u.NormalizedEmail == request.Email.ToLower());
             }
 
-            
-            //var user = _context.Users.GetAll().SingleOrDefault(u => string.Equals(u.UserName, request.Username, StringComparison.CurrentCultureIgnoreCase) && string.Equals(u.PasswordHash, passwordHash, StringComparison.CurrentCulture));
-
-            if (user == null)
+            if (user != null)
             {
-                response.Errors.Add("LoginFailed", "Неверное имя пользователя или пароль");
-                return response;
+                var decryptedPassword = _crypto.DecryptStringAes(user.PasswordHash, passwordSecret);
+                if (decryptedPassword == request.Password + AuthOptions.PasswordSalt)
+                {
+                    var token = await AuthUser(user, request.ProviderCode);
+                    response.AccessToken = token.AccessToken;
+                    response.RefreshToken = token.RefreshToken;
+                    response.Email = user.NormalizedEmail;
+                    response.Username = user.UserName;
+                    response.FirstName = user.FirstName;
+                    response.LastName = user.LastName;
+                    return response;
+                }
             };
 
             // authentication successful so generate jwt token
-            var token = await AuthUser(user, request.ProviderCode);
-            response.AccessToken = token.AccessToken;
 
+            response.Errors.Add("LoginFailed", "Неверное имя пользователя или пароль");
             return response;
         }
 
@@ -178,7 +184,7 @@ namespace AuthenticationApi.Business.Services
             {
                 response.Errors.Add("InvalidEmail", "Неверный формат имени пользователя");
             }
-            else if (await UserNameExists(request.Email))
+            else if (await UserWithEmailExists(request.Email))
             {
                 response.Errors.Add("EmailAlreadyExists", "Данный Email уже зарегистрирован");
             }
@@ -197,7 +203,7 @@ namespace AuthenticationApi.Business.Services
             }
 
             return response;
-            
+
 
             //var newUser = _context.Users.Create(user);
             //_context.Commit();
@@ -438,6 +444,9 @@ namespace AuthenticationApi.Business.Services
 
             var login = new Login
             {
+                CreateDate = DateTime.Now,
+                ChangeDate = DateTime.Now,
+                ChangeBy = "Auth Server", //TODO: Move ChangeBy value to params
                 AccessToken = token.AccessToken,
                 RefreshToken = GenerateRefreshToken(),
                 LoginProviderId = provider.Id,
@@ -448,6 +457,8 @@ namespace AuthenticationApi.Business.Services
             };
 
             _context.Logins.Create(login);
+
+            token.RefreshToken = login.RefreshToken;
 
             return token;
         }
