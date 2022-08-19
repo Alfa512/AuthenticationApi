@@ -10,9 +10,4 @@
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.21.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ApiResponse\" />
-    <Folder Include="ApiResponse\" />
-  </ItemGroup>
-
 </Project>

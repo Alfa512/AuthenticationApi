@@ -54,7 +54,7 @@ namespace AuthenticationApi.Model.Data
 
         public string GetUserName()
         {
-            return UserName;
+            return NormalizedUserName;
         }
         public string GetPasswordHash()
         {

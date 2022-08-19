@@ -26,7 +26,6 @@ namespace AuthenticationApi.Common.Contracts.Services
         Task<string> GenerateEmailConfirmationTokenAsync(User user);
         Task<RefreshTokenRequest> RefreshToken(RefreshTokenRequest refreshTokenRequest);
 
-        bool IsUserExists(string name);
         User GetUserByToken(string token);
 
         string CreateToken(string userName);

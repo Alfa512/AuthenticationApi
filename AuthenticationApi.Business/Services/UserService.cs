@@ -104,7 +104,7 @@ namespace AuthenticationApi.Business.Services
             var passwordSecret = await _dbConfigurationService.GetPasswordSecret();
             var passwordHash = _crypto.EncryptStringAes(password, passwordSecret);
 
-            var user = _context.Users.GetAll().FirstOrDefault(u => string.Equals(u.UserName, userName, StringComparison.CurrentCultureIgnoreCase) && string.Equals(u.PasswordHash, passwordHash, StringComparison.CurrentCulture));
+            var user = _context.Users.GetAll().FirstOrDefault(u => u.UserName == userName.ToLower() && string.Equals(u.PasswordHash, passwordHash, StringComparison.CurrentCulture));
             if (user == null)
                 return null;
             return user;
@@ -127,12 +127,21 @@ namespace AuthenticationApi.Business.Services
 
         public async Task<User> GetUserByUserName(string username)
         {
-            return await _context.Users.GetAll().FirstOrDefaultAsync(t => t.GetUserName().Equals(username, StringComparison.CurrentCultureIgnoreCase));
+            try
+            {
+                var res = await _context.Users.GetAll().FirstOrDefaultAsync(t => t.NormalizedUserName == username.ToLower());
+                return res;
+            }
+            catch (Exception e)
+            {
+
+            }
+            return null;
         }
 
         public async Task<User> GetUserByEmail(string email)
         {
-            return await _context.Users.GetAll().FirstOrDefaultAsync(t => t.NormalizedEmail == email);
+            return await _context.Users.GetAll().FirstOrDefaultAsync(t => t.NormalizedEmail == email.ToLower());
         }
 
         public async Task<bool> DoesUserNameExists(string username)
@@ -173,20 +182,20 @@ namespace AuthenticationApi.Business.Services
 
             if (request.UserName.IsNullOrEmpty())
             {
-                response.Errors.Add("InvalidUserName", "Неверный формат имени пользователя");
+                response.Errors.Add("UserNameInvalidFormatError", "Логин может содержать: заглавные или прописные буквы, цифры, символ \"_\"");
             }
             else if (await UserNameExists(request.UserName))
             {
-                response.Errors.Add("UserNameAlreadyExists", "Этот логин уже занят");
+                response.Errors.Add("UserNameAlreadyExistsError", "Этот логин уже занят");
             }
 
             if (request.Email.IsNullOrEmpty())
             {
-                response.Errors.Add("InvalidEmail", "Неверный формат имени пользователя");
+                response.Errors.Add("EmailInvalidFormatError", "Некорректный формат Email адреса");
             }
             else if (await UserWithEmailExists(request.Email))
             {
-                response.Errors.Add("EmailAlreadyExists", "Данный Email уже зарегистрирован");
+                response.Errors.Add("EmailAlreadyExistsError", "Данный Email уже зарегистрирован");
             }
 
             User newUser = null;
@@ -200,6 +209,10 @@ namespace AuthenticationApi.Business.Services
             {
                 response.AccessToken = (await AuthUser(newUser, request.ProviderCode)).AccessToken;
                 response.InitUser(newUser);
+            }
+            else
+            {
+                response.Errors.Add("SignUpCommonError", "При регистрации произошла ошибка. Повторите попытку через несколько минут");
             }
 
             return response;
@@ -215,11 +228,6 @@ namespace AuthenticationApi.Business.Services
         public async Task<string> GenerateEmailConfirmationTokenAsync(User user)
         {
             return await _userManager.GenerateEmailConfirmationTokenAsync(user);
-        }
-
-        public bool IsUserExists(string name)
-        {
-            return _context.Users.GetAll().FirstOrDefault(t => t.FirstName.Equals(name, StringComparison.OrdinalIgnoreCase)) != null;
         }
 
         public User GetUserByToken(string token)
@@ -499,6 +507,7 @@ namespace AuthenticationApi.Business.Services
             var claims = new List<Claim>();
             claims.Add(new Claim("UserIdentifier", user.UserIdentifier.ToString()));
             claims.Add(new Claim("UserName", user.UserName));
+            claims.Add(new Claim("Email", user.NormalizedEmail));
             claims.Add(new Claim("expires", TimeSpan.FromMinutes(AuthOptions.AccessTokenLifeTimeMinutes).ToString()));
             //claims.Add(new Claim("Roles", string.Join(",", user.UserRoles.Select(r => r.RoleId)) ));
 
