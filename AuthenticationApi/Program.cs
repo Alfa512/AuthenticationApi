@@ -6,6 +6,8 @@ using AuthenticationApi.Data;
 using AuthenticationApi.Data.Repositories;
 using AuthenticationApi.Model.Data;
 using Microsoft.EntityFrameworkCore;
+using NLog;
+using NLog.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,10 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// NLog: Setup NLog for Dependency injection
+builder.Logging.ClearProviders();
+builder.Host.UseNLog();
 
 IConfiguration configuration = new ConfigurationManager();
 IConfigurationService configurationService = new ConfigurationService(configuration);
