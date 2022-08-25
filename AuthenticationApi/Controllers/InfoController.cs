@@ -46,8 +46,8 @@ public class InfoController : ControllerBase
             settings.Converters.Add(new IPAddressConverter());
             settings.Converters.Add(new IPEndPointConverter());
             settings.Formatting = Formatting.Indented;
-            _logger.LogInformation(JsonConvert.SerializeObject(this.HttpContext.Request.HttpContext.Connection, settings));
-            _logger.LogInformation(JsonConvert.SerializeObject(this.HttpContext.Request.HttpContext.Items));
+            _logger.LogWarning(JsonConvert.SerializeObject(this.HttpContext.Request.HttpContext.Connection, settings));
+            _logger.LogWarning(JsonConvert.SerializeObject(this.HttpContext.Request.HttpContext.Items));
         }
         catch (Exception e)
         {
